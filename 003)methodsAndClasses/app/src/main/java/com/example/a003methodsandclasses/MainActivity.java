@@ -10,6 +10,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
+    String username;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,5 +22,48 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        System.out.println("on create called");
+        testMethod();
+        System.out.println(math(5,9));
+        System.out.println(newMethod("Elyesa"));
+        username = "Elyesa";
+    }
+
+    public void testMethod(){
+        username = "Fatma";
+        int x = 4 + 4;
+        x = 9;
+        System.out.println("value of x: " + x);
+    }
+
+    public int math(int a, int b){
+        username = "Meryem";
+        int x = 11;
+        System.out.println("value of x in math: " + x);
+        return a + b;
+    }
+
+    public String newMethod(String string){
+        return string + " new method";
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        System.out.println("on resume called");
+        testMethod();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        System.out.println("on stop called");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        System.out.println("on pause called");
     }
 }
