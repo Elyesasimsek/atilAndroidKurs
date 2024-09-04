@@ -28,6 +28,12 @@ public class MainActivity extends AppCompatActivity {
         System.out.println(math(5,9));
         System.out.println(newMethod("Elyesa"));
         username = "Elyesa";
+        makeFamily();
+    }
+
+    public void makeFamily(){
+        Family elyesa = new Family("Elyesa", 25);
+        System.out.println(elyesa.getName());
     }
 
     public void testMethod(){
