@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -20,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.databinding.DataBindingUtil;
 
 import com.example.catchtheonepiece.databinding.ActivityCatchBinding;
+import com.squareup.picasso.Picasso;
 
 import java.util.Random;
 
@@ -30,6 +30,7 @@ public class CatchActivity extends AppCompatActivity {
     private ImageView[] imageViewArray;
     private Handler handler;
     private Runnable runnable;
+    private Character character;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +42,19 @@ public class CatchActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        character = (Character) getIntent().getSerializableExtra("character");
 
 
-        imageViewArray = new ImageView[]{design.imageView, design.imageView2, design.imageView3, design.imageView4, design.imageView5, design.imageView6, design.imageView7, design.imageView8, design.imageView9};
+
+
+        imageViewArray = new ImageView[]{design.imageView1, design.imageView2, design.imageView3, design.imageView4, design.imageView5, design.imageView6, design.imageView7, design.imageView8, design.imageView9};
+
+
+
+        for (ImageView imageView: imageViewArray){
+            String url = "https://elyesasimsek.com/onepiece/image/" + character.getCharacterImage();
+            Picasso.get().load(url).into(imageView);
+        }
 
         hideImages();
 
