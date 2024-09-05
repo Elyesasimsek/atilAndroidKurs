@@ -2,6 +2,7 @@ package com.example.runnablehandler;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void start(View view){
-        handler = new Handler();
+        handler = Handler.createAsync(Looper.getMainLooper());
         runnable = new Runnable() {
             @Override
             public void run() {
