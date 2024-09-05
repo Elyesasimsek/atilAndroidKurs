@@ -17,14 +17,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.databinding.DataBindingUtil;
+
+import com.example.catchtheonepiece.databinding.ActivityCatchBinding;
 
 import java.util.Random;
 
 public class CatchActivity extends AppCompatActivity {
 
-    private TextView textViewTime, textViewScore;
+    private ActivityCatchBinding design;
     private int score;
-    private ImageView imageView, imageView2, imageView3, imageView4, imageView5, imageView6, imageView7, imageView8, imageView9;
     private ImageView[] imageViewArray;
     private Handler handler;
     private Runnable runnable;
@@ -33,25 +35,15 @@ public class CatchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_catch);
+        design = DataBindingUtil.setContentView(this, R.layout.activity_catch);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        textViewTime = findViewById(R.id.textViewTime);
-        textViewScore = findViewById(R.id.textViewScore);
-        imageView = findViewById(R.id.imageView);
-        imageView2 = findViewById(R.id.imageView2);
-        imageView3 = findViewById(R.id.imageView3);
-        imageView4 = findViewById(R.id.imageView4);
-        imageView5 = findViewById(R.id.imageView5);
-        imageView6 = findViewById(R.id.imageView6);
-        imageView7 = findViewById(R.id.imageView7);
-        imageView8 = findViewById(R.id.imageView8);
-        imageView9 = findViewById(R.id.imageView9);
-        imageViewArray = new ImageView[]{imageView, imageView2, imageView3, imageView4, imageView5, imageView6, imageView7, imageView8, imageView9};
+
+        imageViewArray = new ImageView[]{design.imageView, design.imageView2, design.imageView3, design.imageView4, design.imageView5, design.imageView6, design.imageView7, design.imageView8, design.imageView9};
 
         hideImages();
 
@@ -62,12 +54,12 @@ public class CatchActivity extends AppCompatActivity {
 
             @Override
             public void onTick(long millisUntilFinished) {
-                textViewTime.setText("Time: " + millisUntilFinished / 1000);
+                design.textViewTime.setText("Time: " + millisUntilFinished / 1000);
             }
 
             @Override
             public void onFinish() {
-                textViewTime.setText("Time Off");
+                design.textViewTime.setText("Time Off");
                 handler.removeCallbacks(runnable);
                 for (ImageView image:imageViewArray){
                     image.setVisibility(View.INVISIBLE);
@@ -96,7 +88,7 @@ public class CatchActivity extends AppCompatActivity {
 
     public void increaseScore(View view){
         score++;
-        textViewScore.setText("Score: " + score);
+        design.textViewScore.setText("Score: " + score);
     }
 
     public void hideImages(){

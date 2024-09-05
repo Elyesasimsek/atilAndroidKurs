@@ -6,6 +6,10 @@ android {
     namespace 'com.example.catchtheonepiece'
     compileSdk 34
 
+    buildFeatures{
+        dataBinding = true
+    }
+
     defaultConfig {
         applicationId "com.example.catchtheonepiece"
         minSdk 30
