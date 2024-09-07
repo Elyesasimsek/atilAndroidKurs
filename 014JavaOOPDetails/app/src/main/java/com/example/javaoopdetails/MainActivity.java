@@ -20,5 +20,16 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        Kedi kedi1 = new Kedi("kedi1", "Sarı", "Kahverengi");
+        Kedi ked2 = new Kedi();
+
+        System.out.println(Kedi.turIsmi);
+        kedi1.konusKedi();
+        Kedi.konusKediStatic();
+
+        Kopek kopek = new Kopek();
+        Kopek kopek1 = new Kopek("Barley", "Sari", "Sari");
+        System.out.println(kopek1);
     }
 }
