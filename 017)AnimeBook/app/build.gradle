@@ -6,6 +6,10 @@ android {
     namespace 'com.example.animebook'
     compileSdk 34
 
+    buildFeatures{
+        dataBinding true
+    }
+
     defaultConfig {
         applicationId "com.example.animebook"
         minSdk 30
