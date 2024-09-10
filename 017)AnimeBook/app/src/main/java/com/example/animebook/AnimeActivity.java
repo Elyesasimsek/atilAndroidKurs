@@ -171,8 +171,6 @@ public class AnimeActivity extends AppCompatActivity {
                 activityResultLauncher.launch(intentToGallery);
             }
         }
-
-
     }
 
     private void registerLauncher(){
