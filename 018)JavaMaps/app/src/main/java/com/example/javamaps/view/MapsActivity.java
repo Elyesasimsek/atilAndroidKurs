@@ -65,7 +65,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_maps);
-        setContentView(binding.getRoot());
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -84,67 +84,64 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         selectedLongitude = 0.0;
 
         binding.buttonSAVE.setEnabled(false);
+        setContentView(binding.getRoot());
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setOnMapLongClickListener(this);
+        String intentInfo = getIntent().getStringExtra("info");
+            if (intentInfo.equals("new")){
+                binding.buttonSAVE.setVisibility(View.VISIBLE);
+                binding.buttonDelete.setVisibility(View.GONE);
 
-        Intent intent = getIntent();
-        String intentInfo = intent.getStringExtra("info");
-        if (Objects.equals(intentInfo, "new")){
-            binding.buttonSAVE.setVisibility(View.VISIBLE);
-            binding.buttonDelete.setVisibility(View.GONE);
+                //casting
+                locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+                locationListener = new LocationListener() {
+                    @Override
+                    public void onLocationChanged(@NonNull Location location) {
+                        info = sharedPreferences.getBoolean("info", false);
 
-            //casting
-            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-            locationListener = new LocationListener() {
-                @Override
-                public void onLocationChanged(@NonNull Location location) {
-                    info = sharedPreferences.getBoolean("info", false);
-
-                    if (!info){
-                        LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 16));
-                        sharedPreferences.edit().putBoolean("info", true).apply();
-                    }
-
-
-                }
-            };
-
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
-                    Snackbar.make(binding.getRoot(), "Permission needed for maps", Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+                        if (!info){
+                            LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 16));
+                            sharedPreferences.edit().putBoolean("info", true).apply();
                         }
-                    }).show();
+                    }
+                };
+
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
+                        Snackbar.make(binding.getRoot(), "Permission needed for maps", Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+                            }
+                        }).show();
+                    }else {
+                        permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+                    }
                 }else {
-                    permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                    lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (lastLocation != null){
+                        lastUserLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastUserLocation, 16));
+                    }
+                    mMap.setMyLocationEnabled(true);
                 }
             }else {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-                lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                if (lastLocation != null){
-                    lastUserLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastUserLocation, 16));
-                }
-                mMap.setMyLocationEnabled(true);
-            }
-        }else {
-            mMap.clear();
-            selectedPlace = (Place) intent.getSerializableExtra("place");
-            LatLng latLng = new LatLng(selectedPlace.getLatitude(), selectedPlace.getLongitude());
+                mMap.clear();
+                selectedPlace = (Place) getIntent().getSerializableExtra("place");
+                LatLng latLng = new LatLng(selectedPlace.getLatitude(), selectedPlace.getLongitude());
 
-            mMap.addMarker(new MarkerOptions().position(latLng).title(selectedPlace.getName()));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
-            binding.editTextPlaceName.setText(selectedPlace.getName());
-            binding.buttonSAVE.setVisibility(View.GONE);
-            binding.buttonDelete.setVisibility(View.VISIBLE);
-        }
+                mMap.addMarker(new MarkerOptions().position(latLng).title(selectedPlace.getName()));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+                binding.editTextPlaceName.setText(selectedPlace.getName());
+                binding.buttonSAVE.setVisibility(View.GONE);
+                binding.buttonDelete.setVisibility(View.VISIBLE);
+            }
     }
 
     private void registeredLauncher(){
@@ -161,7 +158,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     }
                 }else{
-
                     Toast.makeText(MapsActivity.this, "Permisssion needed!", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -187,7 +183,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void handleResponse(){
-        Intent intent = new Intent(MapsActivity.this, MapsActivity.class);
+        Intent intent = new Intent(MapsActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
