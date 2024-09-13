@@ -6,6 +6,10 @@ android {
     namespace 'com.example.a021retrofitjava'
     compileSdk 34
 
+    buildFeatures{
+        dataBinding true
+    }
+
     defaultConfig {
         applicationId "com.example.a021retrofitjava"
         minSdk 30
