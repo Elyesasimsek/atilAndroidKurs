@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/my_graph"
+    app:startDestination="@id/mainFragment">
+
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.example.animebookfragment.View.MainFragment"
+        android:label="MainFragment" >
+        <action
+            android:id="@+id/action_mainFragment_to_animeFragment"
+            app:destination="@id/animeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/animeFragment"
+        android:name="com.example.animebookfragment.View.AnimeFragment"
+        android:label="AnimeFragment" >
+        <action
+            android:id="@+id/action_animeFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+        <argument
+            android:name="animeId"
+            app:argType="integer"
+            android:defaultValue="0" />
+
+        <argument
+            android:name="info"
+            app:argType="string" />
+
+    </fragment>
+</navigation>
