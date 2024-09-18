@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import java.util.Random;
 
 public class FruitNinja extends ApplicationAdapter implements InputProcessor {
+    ShapeRenderer shapeRenderer;
     SpriteBatch batch;
     Texture background;
     Texture apple, bill, cherry;
@@ -33,7 +35,7 @@ public class FruitNinja extends ApplicationAdapter implements InputProcessor {
     int score = 0;
 
     float genCounter = 0;
-    final float startGenSpeed = 1.1f;
+    private final float startGenSpeed = 1.1f;
     float genSpeed = startGenSpeed;
 
     private double currentTime;
@@ -41,13 +43,14 @@ public class FruitNinja extends ApplicationAdapter implements InputProcessor {
 
     @Override
     public void create() {
+        shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         background = new Texture("ninjabackground.png");
         apple = new Texture("apple.png");
         bill = new Texture("bill.png");
         cherry = new Texture("cherry.png");
         ruby = new Texture("ruby.png");
-        Fruit.radius = Math.max(Gdx.graphics.getHeight(), Gdx.graphics.getWidth()) / 20;
+        Fruit.radius = (float) Math.max(Gdx.graphics.getHeight(), Gdx.graphics.getWidth()) / (2*10);
         Gdx.input.setInputProcessor(this);
 
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("robotobold.ttf"));
@@ -63,7 +66,7 @@ public class FruitNinja extends ApplicationAdapter implements InputProcessor {
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        double newTime = TimeUtils.millis() / 1000;
+        double newTime = (double) TimeUtils.millis() / 1000;
         System.out.println("newTime: " + newTime);
         double frameTime = Math.min(newTime - currentTime, 0.3);
         System.out.println("frameTime: " + frameTime);
@@ -141,7 +144,7 @@ public class FruitNinja extends ApplicationAdapter implements InputProcessor {
     }
 
     private void addItem(){
-        float pos = random.nextFloat() * Math.max(Gdx.graphics.getHeight(), Gdx.graphics.getWidth());
+        float pos = random.nextFloat() * Gdx.graphics.getWidth();
         Fruit item = new Fruit(new Vector2(pos, -Fruit.radius), new Vector2((Gdx.graphics.getWidth() * 0.5f - pos) * (0.3f +(random.nextFloat() - 0.5f)), (Gdx.graphics.getHeight() * 0.5f)));
         float type = random.nextFloat();
         if (type > 0.98){
@@ -157,6 +160,7 @@ public class FruitNinja extends ApplicationAdapter implements InputProcessor {
     @Override
     public void dispose() {
         batch.dispose();
+        shapeRenderer.dispose();
         font.dispose();
         fontGenerator.dispose();
     }

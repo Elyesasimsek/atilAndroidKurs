@@ -10,7 +10,7 @@ public class Fruit {
     }
     Type type;
     Vector2 pos, velocity;
-    public boolean living= true;
+    public boolean living = true;
 
     Fruit(Vector2 pos, Vector2 velocity){
         this.pos = pos;
