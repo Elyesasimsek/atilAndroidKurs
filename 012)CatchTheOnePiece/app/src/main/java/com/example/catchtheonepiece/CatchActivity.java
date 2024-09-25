@@ -43,10 +43,6 @@ public class CatchActivity extends AppCompatActivity {
             return insets;
         });
         character = (Character) getIntent().getSerializableExtra("character");
-
-
-
-
         imageViewArray = new ImageView[]{design.imageView1, design.imageView2, design.imageView3, design.imageView4, design.imageView5, design.imageView6, design.imageView7, design.imageView8, design.imageView9};
 
 
