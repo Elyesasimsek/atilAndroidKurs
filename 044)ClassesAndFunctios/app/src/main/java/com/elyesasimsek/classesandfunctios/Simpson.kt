@@ -16,8 +16,8 @@ class Simpson {
         this.name = name
         this.age = age
         this.job = job
-
     }
+
 
 
 }

@@ -1,14 +1,13 @@
-package com.elyesasimsek.intentkotlin
+package com.elyesasimsek.countdownkotlin
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.os.CountDownTimer
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
-import com.elyesasimsek.intentkotlin.databinding.ActivityMainBinding
+import com.elyesasimsek.countdownkotlin.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,12 +22,16 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-    }
 
-    fun next(view: View){
-        val intent = Intent(this@MainActivity, NextActivity::class.java)
-        intent.putExtra("name", binding.editText.text.toString())
+        object : CountDownTimer(10000, 1000){
+            override fun onTick(millisUntilFinished: Long) {
+                binding.textView.text = "Left: ${millisUntilFinished / 1000}"
+            }
 
-        startActivity(intent)
+            override fun onFinish() {
+                binding.textView.text = "Left: 0"
+            }
+
+        }.start()
     }
 }
