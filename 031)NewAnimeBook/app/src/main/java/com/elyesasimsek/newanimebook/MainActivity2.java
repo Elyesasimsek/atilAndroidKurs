@@ -1,10 +1,13 @@
 package com.elyesasimsek.newanimebook;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +20,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -30,12 +34,14 @@ import com.elyesasimsek.newanimebook.databinding.ActivityMain2Binding;
 import com.elyesasimsek.newanimebook.databinding.ActivityMainBinding;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 public class MainActivity2 extends AppCompatActivity {
 
     private ActivityMain2Binding binding;
-    private ActivityResultLauncher<Intent> activityResultLauncher;
-    private ActivityResultLauncher<String> permissionLauncher;
     private Bitmap selectedImage;
+    String firstName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,105 +53,122 @@ public class MainActivity2 extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        registerLauncher();
+
+        Intent intent = getIntent();
+        String info = intent.getStringExtra("info");
+
+        if (info.matches("new")){
+            Bitmap backround = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.selectimage);
+            binding.imageView.setImageBitmap(backround);
+            binding.editText.setText("");
+            binding.buttonSave.setVisibility(View.VISIBLE);
+            binding.buttoDelete.setVisibility(View.GONE);
+            binding.buttonUpdate.setVisibility(View.GONE);
+        }else {
+            String name = intent.getStringExtra("name");
+            binding.editText.setText(name);
+            firstName = name;
+            int position = intent.getIntExtra("position", 0);
+            binding.imageView.setImageBitmap(MainActivity.animeImageList.get(position));
+
+            binding.buttonSave.setVisibility(View.GONE);
+            binding.buttoDelete.setVisibility(View.VISIBLE);
+            binding.buttonUpdate.setVisibility(View.VISIBLE);
+        }
     }
 
     public void saveRecord(View view){
+        String animeName = binding.editText.getText().toString();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        selectedImage.compress(Bitmap.CompressFormat.PNG, 50, outputStream);
+        byte[] bytes = outputStream.toByteArray();
 
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(AnimeContentProvider.NAME, animeName);
+        contentValues.put(AnimeContentProvider.IMAGE, bytes);
+
+        getContentResolver().insert(AnimeContentProvider.CONTENT_URI, contentValues);
+
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
     }
 
     public void updateRecord(View view){
+        String animeName = binding.editText.getText().toString();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Bitmap bitmap = ((BitmapDrawable) binding.imageView.getDrawable()).getBitmap();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 50, outputStream);
+        byte[] bytes = outputStream.toByteArray();
 
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(AnimeContentProvider.NAME, animeName);
+        contentValues.put(AnimeContentProvider.IMAGE, bytes);
+
+        String[] selectionArguments ={firstName};
+        getContentResolver().update(AnimeContentProvider.CONTENT_URI, contentValues, "name=?", selectionArguments);
+
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
     }
 
     public void deleteRecord(View view){
+        String recordName = binding.editText.getText().toString();
+        String[] selectionArguments = {recordName};
+        getContentResolver().delete(AnimeContentProvider.CONTENT_URI, "name=?", selectionArguments);
 
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
     }
 
-    public void select(View view){
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED){
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_MEDIA_IMAGES)){
-                        Snackbar.make(view, "Permission needed for gallery", Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
-                            }
-                        }).show();
-                    }else {
-                        permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
-                    }
-                }else {
-                    Intent intentToGallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    activityResultLauncher.launch(intentToGallery);
-                }
-            }else {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)){
-                        Snackbar.make(view, "Permission needed for gallery", Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
-                            }
-                        }).show();
-                    }else {
-                        permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
-                    }
-                }else {
-                    Intent intentToGallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    activityResultLauncher.launch(intentToGallery);
-                }
-            }
-    }
+    public void select(View view) {
 
-    private void registerLauncher(){
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @RequiresApi(api = Build.VERSION_CODES.P)
-            @Override
-            public void onActivityResult(ActivityResult o) {
-                if (o.getResultCode() == RESULT_OK){
-                    Intent intentFromResult = o.getData();
-                    if (intentFromResult != null){
-                        Uri imageData = intentFromResult.getData();
-                        binding.imageView.setImageURI(imageData);
-                        try {
-                            ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), imageData);
-                            selectedImage = ImageDecoder.decodeBitmap(source);
-                            binding.imageView.setImageBitmap(selectedImage);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.READ_MEDIA_IMAGES},1);
+            } else {
+                Intent intent = new Intent (Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent,2);
             }
-        });
-
-        permissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
-            @Override
-            public void onActivityResult(Boolean o) {
-                if (o){
-                    Intent intentToGallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    activityResultLauncher.launch(intentToGallery);
-                }else {
-                    Toast.makeText(MainActivity2.this, "Permission needed!", Toast.LENGTH_SHORT).show();
-                }
+        }else{
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},1);
+            } else {
+                Intent intent = new Intent (Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent,2);
             }
-        });
-    }
-
-    public Bitmap makeSmallerImage(Bitmap image, int maximumSize){
-        int width = image.getWidth();
-        int height = image.getHeight();
-        float bitmapRatio = (float) width / (float) height;
-        if (bitmapRatio > 1){
-            width = maximumSize;
-            height = (int) (width / bitmapRatio);
-        }else {
-            height = maximumSize;
-            width = (int) (height * bitmapRatio);
         }
 
-        return Bitmap.createScaledBitmap(image, width, height, true);
+
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 1){
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, 2);
+            }
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 2 && resultCode == RESULT_OK && data != null) {
+
+            Uri image = data.getData();
+
+            try {
+                selectedImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(),image);
+                binding.imageView.setImageBitmap(selectedImage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }
