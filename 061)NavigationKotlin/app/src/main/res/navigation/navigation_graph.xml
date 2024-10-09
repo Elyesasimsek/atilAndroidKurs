@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/firatFragment">
+
+    <fragment
+        android:id="@+id/firatFragment"
+        android:name="com.elyesasimsek.navigationkotlin.FiratFragment"
+        android:label="FiratFragment" >
+        <action
+            android:id="@+id/action_firatFragment_to_secondFragment"
+            app:destination="@id/secondFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/secondFragment"
+        android:name="com.elyesasimsek.navigationkotlin.SecondFragment"
+        android:label="SecondFragment" >
+        <action
+            android:id="@+id/action_secondFragment_to_firatFragment"
+            app:destination="@id/firatFragment" />
+        <argument
+            android:name="userName"
+            app:argType="string"
+            android:defaultValue='Elyesa' />
+    </fragment>
+</navigation>
